@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { User, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
     const [currentDate, setCurrentDate] = useState('');
     const [greeting, setGreeting] = useState('Good Morning');
 
+    const navigate = useNavigate();
     useEffect(() => {
         // Set current date and time
         const updateDateTime = () => {
@@ -38,7 +40,8 @@ export default function Dashboard() {
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to log out?')) {
             alert('Logging out...');
-            // Add your logout logic here
+            navigate('/');
+            
         }
     };
 
@@ -77,7 +80,7 @@ export default function Dashboard() {
                 {/* Illustration - Using placeholder, replace with actual image */}
                 <div className="absolute right-8 bottom-0 w-64 h-64 opacity-90">
                     <img 
-                        src="/images/dashboard-illustration.png" 
+                        src="/images/design.png" 
                         alt="Dashboard illustration"
                         className="w-full h-full object-contain"
                         onError={(e) => {

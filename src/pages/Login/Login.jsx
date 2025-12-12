@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminLogin() {
     const [email, setEmail] = useState('');
@@ -9,6 +11,8 @@ export default function AdminLogin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const navigate = useNavigate();
+
     const handleSubmit = (e) => {
         e.preventDefault();
         setError('');
@@ -17,18 +21,17 @@ export default function AdminLogin() {
         // Simulate API call
         setTimeout(() => {
             if (email === 'admin@example.com' && password === 'admin123') {
-                alert('Login successful! (Demo)');
+                toast.success('Login successful');
+                navigate('/dashboard');
             } else {
-                setError('Invalid email or password');
+                toast.error('Invalid email or password');
             }
             setLoading(false);
+            
         }, 1000);
     };
 
-    const handleGoogleSignIn = () => {
-        alert('Google Sign-In coming soon!');
-    };
-
+   
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md">

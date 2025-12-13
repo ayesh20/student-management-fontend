@@ -6,8 +6,8 @@ import { Toaster } from "react-hot-toast";
 
 // Pages
 import Login from "./pages/Login/Login.jsx";
-
 import Dashboard from "./pages/Dashboard/dashboard.jsx";
+import AddStudent from "./pages/addstudent/addstudent.jsx";
 
 
 
@@ -35,6 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard/>}/>
+            <Route path="/addstudent" element={<AddStudent/>}/>
 
            
           </Routes>

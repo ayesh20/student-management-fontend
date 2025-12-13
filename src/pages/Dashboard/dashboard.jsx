@@ -70,7 +70,7 @@ export default function Dashboard() {
             </div>
 
             {/* Hero Banner */}
-            <div className="bg-gradient-to-r from-blue-800 to-blue-900 rounded-2xl p-8 md:p-12 mb-8 relative overflow-hidden shadow-xl">
+            <div className="bg-gradient-to-r from-blue-800 to-blue-900 rounded-2xl p-8 h-60 md:p-12 mb-8 relative overflow-hidden shadow-xl">
                 <div className="relative z-10">
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
                         {greeting}
@@ -150,7 +150,8 @@ export default function Dashboard() {
                     </button>
 
                     {/* Add Student Button */}
-                    <button className="bg-slate-300 hover:bg-slate-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
+                    <button className="bg-slate-300 hover:bg-slate-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg" onClick={() => navigate('/addstudent')}>
+                
                         Add student
                     </button>
 

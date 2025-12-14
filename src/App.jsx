@@ -8,7 +8,8 @@ import { Toaster } from "react-hot-toast";
 import Login from "./pages/Login/Login.jsx";
 import Dashboard from "./pages/Dashboard/dashboard.jsx";
 import AddStudent from "./pages/addstudent/addstudent.jsx";
-
+import Allstudents from "./pages/Allstudents/allstudents.jsx";
+import EditStudent from "./pages/editstudent/editstudent.jsx";
 
 
 function App() {
@@ -36,7 +37,9 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard/>}/>
             <Route path="/addstudent" element={<AddStudent/>}/>
-
+            <Route path="/allstudents" element={<Allstudents/>}/>
+            <Route path="/edit-student" element={<EditStudent/>}/>
+          
            
           </Routes>
         </BrowserRouter>

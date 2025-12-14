@@ -156,7 +156,7 @@ export default function Dashboard() {
                     </button>
 
                     {/* All Student Button */}
-                    <button className="bg-slate-300 hover:bg-slate-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
+                    <button className="bg-slate-300 hover:bg-slate-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg" onClick={() =>navigate('/allstudents')}>
                         All Student
                     </button>
                 </div>

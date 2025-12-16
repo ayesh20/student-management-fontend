@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { User, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Dashboard() {
     const [currentDate, setCurrentDate] = useState('');
     const [greeting, setGreeting] = useState('Good Morning');
+    
 
     const navigate = useNavigate();
     useEffect(() => {
@@ -110,7 +112,7 @@ export default function Dashboard() {
                     <div className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 shadow-lg">
                         <div className="flex items-center gap-4">
                             <div className="bg-blue-300 bg-opacity-50 w-20 h-20 rounded-xl flex items-center justify-center">
-                                <span className="text-white text-2xl font-bold">AI</span>
+                                
                             </div>
                             <div className="text-white">
                                 <h3 className="text-xl font-bold mb-1">Pending Payment</h3>
@@ -123,11 +125,23 @@ export default function Dashboard() {
                     <div className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl p-6 shadow-lg">
                         <div className="flex items-center gap-4">
                             <div className="bg-orange-300 bg-opacity-50 w-20 h-20 rounded-xl flex items-center justify-center">
-                                <span className="text-white text-2xl font-bold">AI</span>
+                                
                             </div>
                             <div className="text-white">
                                 <h3 className="text-xl font-bold mb-1">completed Payment</h3>
                                 <p className="text-3xl font-bold">31</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-red-400 to-red-600 rounded-2xl p-6 shadow-lg">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-red-300 bg-opacity-50 w-20 h-20 rounded-xl flex items-center justify-center">
+                                
+                            </div>
+                            <div className="text-white">
+                                <h3 className="text-xl font-bold mb-1">today Attendance Presentage</h3>
+                                <p className="text-3xl font-bold">31%</p>
                             </div>
                         </div>
                     </div>
@@ -140,7 +154,7 @@ export default function Dashboard() {
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {/* Attendance Button */}
-                    <button className="bg-slate-300 hover:bg-slate-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
+                    <button className="bg-slate-300 hover:bg-slate-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg" onClick={() => navigate('/student-attendance')}>
                         Attendance
                     </button>
 

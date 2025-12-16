@@ -1,20 +1,52 @@
-import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, User, Mail, Phone, MapPin, Save, X } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-
+import { toast } from 'react-hot-toast';
+import axios from 'axios';
 
 export default function EditStudent() {
-
     const navigate = useNavigate();
     const location = useLocation();
-    const existingStudent = location.state?.student || defaultStudent;
-    const [formData, setFormData] = useState(existingStudent);
+    const existingStudent = location.state?.student;
+
+    // Default student data if no data is passed
+    const defaultStudent = {
+        _id: '',
+        StudentID: '',
+        StudentName: '',
+        email: '',
+        phoneNo: '',
+        address: '',
+        DateOfBirth: '',
+        gender: '',
+        attendence: 0,
+        paymentstatus: 'pending'
+    };
+
+    const [formData, setFormData] = useState(existingStudent || defaultStudent);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
-    const [successMessage, setSuccessMessage] = useState('');
     const [hasChanges, setHasChanges] = useState(false);
+
+    const API_URL = 'http://localhost:5000/api';
+
+    // Check if student data exists
+    useEffect(() => {
+        if (!existingStudent) {
+            toast.error('No student data found');
+            navigate('/allstudents');
+        } else {
+            // Format date for input field (YYYY-MM-DD)
+            if (existingStudent.DateOfBirth) {
+                const date = new Date(existingStudent.DateOfBirth);
+                const formattedDate = date.toISOString().split('T')[0];
+                setFormData(prev => ({
+                    ...prev,
+                    DateOfBirth: formattedDate
+                }));
+            }
+        }
+    }, [existingStudent, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -36,20 +68,16 @@ export default function EditStudent() {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.studentId.trim()) {
-            newErrors.studentId = 'Student ID is required';
+        if (!formData.StudentName.trim()) {
+            newErrors.StudentName = 'Student name is required';
+        } else if (formData.StudentName.trim().length < 2) {
+            newErrors.StudentName = 'Name must be at least 2 characters';
         }
 
-        if (!formData.studentName.trim()) {
-            newErrors.studentName = 'Student name is required';
-        } else if (formData.studentName.trim().length < 2) {
-            newErrors.studentName = 'Name must be at least 2 characters';
-        }
-
-        if (!formData.phone.trim()) {
-            newErrors.phone = 'Phone number is required';
-        } else if (!/^\d{10}$/.test(formData.phone.replace(/[-\s]/g, ''))) {
-            newErrors.phone = 'Please enter a valid 10-digit phone number';
+        if (!formData.phoneNo.trim()) {
+            newErrors.phoneNo = 'Phone number is required';
+        } else if (!/^\d{10}$/.test(formData.phoneNo.replace(/[-\s]/g, ''))) {
+            newErrors.phoneNo = 'Please enter a valid 10-digit phone number';
         }
 
         if (!formData.address.trim()) {
@@ -64,44 +92,89 @@ export default function EditStudent() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!validateForm()) {
+            toast.error('Please fix all errors before submitting');
             return;
         }
 
         setLoading(true);
 
-        
-        setTimeout(() => {
-            console.log('Updated student data:', formData);
-            toast.success('Student information updated successfully!');
+        try {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                toast.error('Please login first');
+                navigate('/');
+                return;
+            }
+
+            // Prepare update data
+            const updateData = {
+                StudentName: formData.StudentName,
+                email: formData.email,
+                phoneNo: formData.phoneNo,
+                address: formData.address,
+                DateOfBirth: formData.DateOfBirth,
+                gender: formData.gender
+            };
+
+            const response = await axios.put(
+                `${API_URL}/students/update/${formData._id}`,
+                updateData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.data.success) {
+                toast.success(response.data.message || 'Student updated successfully!');
+                setHasChanges(false);
+                
+                
+            }
+        } catch (error) {
+            console.error('Update student error:', error);
+            
+            if (error.response) {
+                const errorMessage = error.response.data.message || 'Failed to update student';
+                toast.error(errorMessage);
+                
+                if (error.response.status === 403) {
+                    toast.error('Session expired. Please login again');
+                    setTimeout(() => navigate('/'), 2000);
+                }
+            } else if (error.request) {
+                toast.error('Unable to connect to server');
+            } else {
+                toast.error('An error occurred. Please try again');
+            }
+        } finally {
             setLoading(false);
-            setHasChanges(false);
-        }, 1000);
+        }
     };
 
     const handleCancel = () => {
         if (hasChanges) {
             if (window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
-                setFormData(existingStudent);
-                setHasChanges(false);
-                setErrors({});
-                alert('Navigating back to All Students page...');
+                navigate('/allstudents');
             }
         } else {
-            alert('Navigating back to All Students page...');
+            navigate('/allstudents');
         }
     };
 
     const handleBack = () => {
         if (hasChanges) {
             if (window.confirm('You have unsaved changes. Are you sure you want to go back?')) {
-                alert('Navigating back to All Students page...');
+                navigate('/allstudents');
             }
         } else {
-            toast.success('Navigating back to All Students page...');
             navigate('/allstudents');
         }
     };
@@ -122,13 +195,12 @@ export default function EditStudent() {
                             Edit Student
                         </h1>
                         <p className="text-slate-600 text-sm mt-1">
-                            Student ID: <span className="font-semibold">{formData.studentId}</span>
+                            Student ID: <span className="font-semibold">{formData.StudentID}</span>
                         </p>
                     </div>
                 </div>
             </div>
 
-            
             {/* Form Card */}
             <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto">
                 <div className="space-y-6">
@@ -141,8 +213,8 @@ export default function EditStudent() {
                             <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="text"
-                                name="studentId"
-                                value={formData.studentId}
+                                name="StudentID"
+                                value={formData.StudentID}
                                 className="w-full pl-11 pr-4 py-3 border-2 border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
                                 disabled
                                 readOnly
@@ -160,16 +232,16 @@ export default function EditStudent() {
                             <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="text"
-                                name="studentName"
-                                value={formData.studentName}
+                                name="StudentName"
+                                value={formData.StudentName}
                                 onChange={handleChange}
-                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.studentName ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
+                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.StudentName ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
                                 placeholder="Enter full name"
                                 disabled={loading}
                             />
                         </div>
-                        {errors.studentName && (
-                            <p className="mt-1 text-sm text-red-600">{errors.studentName}</p>
+                        {errors.StudentName && (
+                            <p className="mt-1 text-sm text-red-600">{errors.StudentName}</p>
                         )}
                     </div>
 
@@ -204,16 +276,16 @@ export default function EditStudent() {
                             <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="tel"
-                                name="phone"
-                                value={formData.phone}
+                                name="phoneNo"
+                                value={formData.phoneNo}
                                 onChange={handleChange}
-                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.phone ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
+                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.phoneNo ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
                                 placeholder="Enter 10-digit phone number"
                                 disabled={loading}
                             />
                         </div>
-                        {errors.phone && (
-                            <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                        {errors.phoneNo && (
+                            <p className="mt-1 text-sm text-red-600">{errors.phoneNo}</p>
                         )}
                     </div>
 
@@ -247,8 +319,8 @@ export default function EditStudent() {
                             </label>
                             <input
                                 type="date"
-                                name="dateOfBirth"
-                                value={formData.dateOfBirth}
+                                name="DateOfBirth"
+                                value={formData.DateOfBirth}
                                 onChange={handleChange}
                                 className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800"
                                 disabled={loading}
@@ -269,12 +341,10 @@ export default function EditStudent() {
                                 <option value="">Select gender</option>
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
-                                
+                                <option value="other">Other</option>
                             </select>
                         </div>
                     </div>
-
-                    
 
                     {/* Student Status Info */}
                     <div className="pt-6 border-t border-slate-200">
@@ -282,17 +352,20 @@ export default function EditStudent() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="bg-slate-50 p-4 rounded-lg">
                                 <p className="text-sm text-slate-600 mb-1">Total Attendance</p>
-                                <p className="text-2xl font-bold text-slate-800">{formData.totalAttendance} days</p>
+                                <p className="text-2xl font-bold text-slate-800">{formData.attendence || 0} days</p>
                             </div>
                             <div className="bg-slate-50 p-4 rounded-lg">
                                 <p className="text-sm text-slate-600 mb-1">Payment Status</p>
                                 <p className={`text-lg font-bold capitalize ${
-                                    formData.paymentStatus === 'completed' ? 'text-green-600' : 'text-yellow-600'
+                                    formData.paymentstatus === 'completed' ? 'text-green-600' : 'text-yellow-600'
                                 }`}>
-                                    {formData.paymentStatus}
+                                    {formData.paymentstatus}
                                 </p>
                             </div>
                         </div>
+                        <p className="text-xs text-slate-500 mt-2">
+                            * Attendance and Payment status can be updated from the dedicated sections
+                        </p>
                     </div>
 
                     {/* Action Buttons */}

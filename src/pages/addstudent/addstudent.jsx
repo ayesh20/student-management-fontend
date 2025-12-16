@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
 import { User, Mail, Phone, MapPin, Save, X, ArrowLeft, CreditCard } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { data, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 export default function AddStudent() {
     const [formData, setFormData] = useState({
-        studentId: '',
-        studentName: '',
+        StudentID: '',
+        StudentName: '',
         email: '',
-        phone: '',
+        phoneNo: '',
         address: '',
-        dateOfBirth: '',
+        DateOfBirth: '',
         gender: ''
-       
     });
+    
     const navigate = useNavigate();
-     const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    
+    // API base URL
+    const API_URL = 'http://localhost:5000/api';
     
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,7 +30,7 @@ export default function AddStudent() {
         }));
         
         if (errors[name]) {
-            toast.error(prev => ({
+            setErrors(prev => ({
                 ...prev,
                 [name]: ''
             }));
@@ -37,71 +40,117 @@ export default function AddStudent() {
     const validateForm = () => {
         const newErrors = {};
 
-        if (!formData.studentId.trim()) {
-            newErrors.studentId = 'Student ID is required';
+        if (!formData.StudentID.trim()) {
+            newErrors.StudentID = 'Student ID is required';
         }
 
-        if (!formData.studentName.trim()) {
-            newErrors.studentName = 'Student name is required';
-        } else if (formData.studentName.trim().length < 2) {
-            newErrors.studentName = 'Name must be at least 2 characters';
+        if (!formData.StudentName.trim()) {
+            newErrors.StudentName = 'Student name is required';
+        } else if (formData.StudentName.trim().length < 2) {
+            newErrors.StudentName = 'Name must be at least 2 characters';
         }
 
-        if (!formData.phone.trim()) {
-            newErrors.phone = 'Phone number is required';
-        } else if (!/^\d{10}$/.test(formData.phone.replace(/[-\s]/g, ''))) {
-            newErrors.phone = 'Please enter a valid 10-digit phone number';
+        if (!formData.phoneNo.trim()) {
+            newErrors.phoneNo = 'Phone number is required';
+        } else if (!/^\d{10}$/.test(formData.phoneNo.replace(/[-\s]/g, ''))) {
+            newErrors.phoneNo = 'Please enter a valid 10-digit phone number';
         }
 
         if (!formData.address.trim()) {
             newErrors.address = 'Address is required';
         }
 
+        if (!formData.DateOfBirth) {
+            newErrors.DateOfBirth = 'Date of birth is required';
+        }
+
+        if (!formData.gender) {
+            newErrors.gender = 'Gender is required';
+        }
+
         if (formData.email && !/^\S+@\S+\.\S+$/.test(formData.email)) {
             newErrors.email = 'Please enter a valid email';
         }
 
-        toast.error(newErrors);
+        setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!validateForm()) {
+            toast.error('Please fix all errors before submitting');
             return;
         }
 
         setLoading(true);
 
-        setTimeout(() => {
-            console.log('Form submitted:', formData);
-            toast.success('Student added successfully!');
-            navigate('/dashboard');
+        try {
+           
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                toast.error('Please login first');
+                navigate('/');
+                return;
+            }
+
+            
+            const response = await axios.post(
+                `${API_URL}/students/add`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.data.success) {
+                toast.success(response.data.message || 'Student added successfully!');
+                handleReset(); 
+            }
+        } catch (error) {
+            console.error('Add student error:', error);
+            
+            if (error.response) {
+                const errorMessage = error.response.data.message || 'Failed to add student';
+                toast.error(errorMessage);
+               
+            } else if (error.request) {
+                toast.error('Unable to connect to server');
+            } else {
+                toast.success('reseted form');
+            }
+        } finally {
             setLoading(false);
-          
-        }, 1000);
+        }
     };
 
-        const handleReset = () => {
+    const handleReset = () => {
         setFormData({
-            studentId: '',
-            studentName: '',
+            StudentID: '',
+            StudentName: '',
             email: '',
-            phone: '',
+            phoneNo: '',
             address: '',
-            dateOfBirth: '',
+            DateOfBirth: '',
             gender: ''
-            
         });
         setErrors({});
+        toast.info('Form reset');
     };
 
     const handleBack = () => {
-        if (window.confirm('Are you sure you want to go back? Unsaved changes will be lost.')) {
-            alert('Navigating back to dashboard...');
-            navigate('/dashboard');
+        const hasData = Object.values(formData).some(value => value !== '');
+        
+        if (hasData && !window.confirm('Are you sure you want to go back? Unsaved changes will be lost.')) {
+            return;
         }
+        
+        navigate('/dashboard');
     };
 
     return (
@@ -121,8 +170,6 @@ export default function AddStudent() {
                 </div>
             </div>
 
-            
-
             {/* Form Card */}
             <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 max-w-4xl mx-auto">
                 <div className="space-y-6">
@@ -135,16 +182,16 @@ export default function AddStudent() {
                             <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="text"
-                                name="studentId"
-                                value={formData.studentId}
+                                name="StudentID"
+                                value={formData.StudentID}
                                 onChange={handleChange}
-                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.studentId ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
-                                placeholder="Enter student ID (e.g., STU001)"
+                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.StudentID ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
+                                placeholder="Enter student ID (e.g., 000001)"
                                 disabled={loading}
                             />
                         </div>
-                        {errors.studentId && (
-                            <p className="mt-1 text-sm text-red-600">{errors.studentId}</p>
+                        {errors.StudentID && (
+                            <p className="mt-1 text-sm text-red-600">{errors.StudentID}</p>
                         )}
                     </div>
 
@@ -157,16 +204,16 @@ export default function AddStudent() {
                             <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="text"
-                                name="studentName"
-                                value={formData.studentName}
+                                name="StudentName"
+                                value={formData.StudentName}
                                 onChange={handleChange}
-                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.studentName ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
+                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.StudentName ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
                                 placeholder="Enter full name"
                                 disabled={loading}
                             />
                         </div>
-                        {errors.studentName && (
-                            <p className="mt-1 text-sm text-red-600">{errors.studentName}</p>
+                        {errors.StudentName && (
+                            <p className="mt-1 text-sm text-red-600">{errors.StudentName}</p>
                         )}
                     </div>
 
@@ -201,16 +248,16 @@ export default function AddStudent() {
                             <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
                                 type="tel"
-                                name="phone"
-                                value={formData.phone}
+                                name="phoneNo"
+                                value={formData.phoneNo}
                                 onChange={handleChange}
-                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.phone ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
+                                className={`w-full pl-11 pr-4 py-3 border-2 ${errors.phoneNo ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 placeholder-slate-400`}
                                 placeholder="Enter 10-digit phone number"
                                 disabled={loading}
                             />
                         </div>
-                        {errors.phone && (
-                            <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                        {errors.phoneNo && (
+                            <p className="mt-1 text-sm text-red-600">{errors.phoneNo}</p>
                         )}
                     </div>
 
@@ -241,28 +288,31 @@ export default function AddStudent() {
                         {/* Date of Birth */}
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                Date of Birth
+                                Date of Birth <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="date"
-                                name="dateOfBirth"
-                                value={formData.dateOfBirth}
+                                name="DateOfBirth"
+                                value={formData.DateOfBirth}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800"
+                                className={`w-full px-4 py-3 border-2 ${errors.DateOfBirth ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800`}
                                 disabled={loading}
                             />
+                            {errors.DateOfBirth && (
+                                <p className="mt-1 text-sm text-red-600">{errors.DateOfBirth}</p>
+                            )}
                         </div>
 
                         {/* Gender */}
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                Gender
+                                Gender <span className="text-red-500">*</span>
                             </label>
                             <select
                                 name="gender"
                                 value={formData.gender}
                                 onChange={handleChange}
-                                className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 bg-white"
+                                className={`w-full px-4 py-3 border-2 ${errors.gender ? 'border-red-300' : 'border-slate-300'} rounded-lg focus:outline-none focus:border-blue-500 transition-colors text-slate-800 bg-white`}
                                 disabled={loading}
                             >
                                 <option value="">Select gender</option>
@@ -270,10 +320,12 @@ export default function AddStudent() {
                                 <option value="female">Female</option>
                                 
                             </select>
+                            {errors.gender && (
+                                <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
+                            )}
                         </div>
                     </div>
 
-                    
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 pt-6">
                         <button

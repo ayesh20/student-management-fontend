@@ -2,36 +2,88 @@ import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function AdminLogin() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     const navigate = useNavigate();
+    
+    // API base URL
+    const API_URL = 'http://localhost:5000/api';
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            if (email === 'admin@example.com' && password === 'admin123') {
-                toast.success('Login successful');
-                navigate('/dashboard');
-            } else {
-                toast.error('Invalid email or password');
-            }
+        // Validation
+        if (!email || !password) {
+            setError('Please fill in all fields');
+            toast.error('Please fill in all fields');
             setLoading(false);
+            return;
+        }
+
+        try {
             
-        }, 1000);
+            const response = await axios.post(`${API_URL}/admin/login`, {
+                email: email,
+                password: password
+            });
+
+            // Check if login was successful
+            if (response.data.token) {
+                // Save auth data to localStorage
+                localStorage.setItem('authToken', response.data.token);
+                localStorage.setItem('adminData', JSON.stringify(response.data.user));
+
+
+                toast.success(response.data.message || 'Login successful!');
+                
+                setTimeout(() => {
+                    navigate('/dashboard');
+                }, 1000);
+            } else {
+                setError('Login failed. Please try again.');
+                toast.error('Login failed. Please try again.');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            
+            // Handle different error responses
+            if (err.response) {
+                // Server responded with error
+                const errorMessage = err.response.data.message || 'Login failed';
+                setError(errorMessage);
+                toast.error(errorMessage);
+                
+                // Handle specific error codes
+                if (err.response.status === 404) {
+                    toast.error('User not found');
+                } else if (err.response.status === 403) {
+                    toast.error('Incorrect password');
+                }
+            } else if (err.request) {
+                
+                const errorMsg = 'Unable to connect to server. Please check your connection.';
+                setError(errorMsg);
+                toast.error(errorMsg);
+            } else {
+                
+                const errorMsg = 'An unexpected error occurred. Please try again.';
+                setError(errorMsg);
+                toast.error(errorMsg);
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
-   
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
@@ -56,7 +108,7 @@ export default function AdminLogin() {
 
                     {/* Form */}
                     <div className="space-y-5">
-                        
+                        {/* Email Input */}
                         <div>
                             <label 
                                 htmlFor="email" 
@@ -72,10 +124,11 @@ export default function AdminLogin() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 disabled={loading}
+                                required
                             />
                         </div>
 
-                
+                        {/* Password Input */}
                         <div>
                             <div className="flex items-center justify-between mb-2">
                                 <label 
@@ -87,7 +140,7 @@ export default function AdminLogin() {
                                 <button
                                     type="button"
                                     className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                                    onClick={() => alert('Forgot password feature coming soon!')}
+                                    onClick={() => toast.info('Forgot password feature coming soon!')}
                                 >
                                     forgot password
                                 </button>
@@ -101,6 +154,7 @@ export default function AdminLogin() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={loading}
+                                    required
                                 />
                                 <button
                                     type="button"
@@ -118,6 +172,8 @@ export default function AdminLogin() {
                         </div>
 
                        
+
+                        {/* Login Button */}
                         <button
                             onClick={handleSubmit}
                             disabled={loading}
@@ -135,12 +191,10 @@ export default function AdminLogin() {
                                 'Login'
                             )}
                         </button>
-
-                       
                     </div>
                 </div>
 
-                
+               
             </div>
         </div>
     );

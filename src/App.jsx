@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard/dashboard.jsx";
 import AddStudent from "./pages/addstudent/addstudent.jsx";
 import Allstudents from "./pages/Allstudents/allstudents.jsx";
 import EditStudent from "./pages/editstudent/editstudent.jsx";
+import StudentAttendance from "./pages/attendence/studentAttendence.jsx";
 
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
             <Route path="/addstudent" element={<AddStudent/>}/>
             <Route path="/allstudents" element={<Allstudents/>}/>
             <Route path="/edit-student" element={<EditStudent/>}/>
+            <Route path="/student-attendance" element={<StudentAttendance/>}/>
           
            
           </Routes>

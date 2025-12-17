@@ -97,7 +97,7 @@ export default function Dashboard() {
                 <h2 className="text-2xl font-bold text-slate-800 mb-4">Analysis</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Total Card */}
+                   
                     <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-2xl p-6 shadow-lg">
                         <div className="flex items-center gap-4">
                             <div className="bg-green-300 bg-opacity-50 w-20 h-20 rounded-xl"></div>
@@ -108,7 +108,6 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Pending Payment Card */}
                     <div className="bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl p-6 shadow-lg">
                         <div className="flex items-center gap-4">
                             <div className="bg-blue-300 bg-opacity-50 w-20 h-20 rounded-xl flex items-center justify-center">
@@ -121,7 +120,7 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Completed Payment Card */}
+                   
                     <div className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl p-6 shadow-lg">
                         <div className="flex items-center gap-4">
                             <div className="bg-orange-300 bg-opacity-50 w-20 h-20 rounded-xl flex items-center justify-center">
@@ -145,6 +144,8 @@ export default function Dashboard() {
                             </div>
                         </div>
                     </div>
+
+                    
                 </div>
             </div>
 
@@ -159,7 +160,7 @@ export default function Dashboard() {
                     </button>
 
                     {/* Payments Button */}
-                    <button className="bg-slate-300 hover:bg-slate-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg">
+                    <button className="bg-slate-300 hover:bg-slate-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg" onClick={() => navigate('/payment-management')}>
                         Payments
                     </button>
 
@@ -175,6 +176,25 @@ export default function Dashboard() {
                     </button>
                 </div>
             </div>
+  <br />
+            {/* report section*/}
+            <div>
+                <h2 className="text-2xl font-bold text-slate-800 mb-4">Reports</h2>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Attendance Button */}
+                    <button className="bg-purple-300 hover:bg-purple-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg" onClick={() => navigate('/student-attendance')}>
+                        Attendance Report
+                    </button>
+
+                    {/* Payments Button */}
+                    <button className="bg-purple-300 hover:bg-purple-400 text-slate-800 text-xl font-bold py-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg" onClick={() => navigate('/payment-management')}>
+                        Payments Report
+                    </button>
+
+                </div>
+            </div>
+
         </div>
     );
 }

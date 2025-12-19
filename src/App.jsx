@@ -12,6 +12,7 @@ import Allstudents from "./pages/Allstudents/allstudents.jsx";
 import EditStudent from "./pages/editstudent/editstudent.jsx";
 import StudentAttendance from "./pages/attendence/studentAttendence.jsx";
 import PaymentManagement from "./pages/payment/payment.jsx";
+import AttendanceReport from "./pages/attendancereport/attendancereport.jsx";
 
 
 function App() {
@@ -43,6 +44,8 @@ function App() {
             <Route path="/edit-student" element={<EditStudent/>}/>
             <Route path="/student-attendance" element={<StudentAttendance/>}/>
             <Route path="/payment-management" element={<PaymentManagement/>}/>
+            <Route path="/attendance-report" element={<AttendanceReport/>}/>
+
           
            
           </Routes>

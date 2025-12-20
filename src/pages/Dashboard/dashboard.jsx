@@ -19,7 +19,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
-    const API_URL = 'http://localhost:5000/api';
+    const API_URL = import.meta.env.VITE_BACKEND_URL+"/api";
 
     useEffect(() => {
         // Set current date and time

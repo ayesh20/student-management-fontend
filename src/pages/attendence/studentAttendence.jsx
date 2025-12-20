@@ -13,7 +13,7 @@ export default function StudentAttendance() {
     const [existingAttendance, setExistingAttendance] = useState([]);
     
     const navigate = useNavigate();
-    const API_URL = 'http://localhost:5000/api';
+    const API_URL = import.meta.env.VITE_BACKEND_URL+"/api";
 
     useEffect(() => {
         fetchStudents();

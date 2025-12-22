@@ -19,7 +19,7 @@ export default function AddStudent() {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     
-    // API base URL
+   
     const API_URL = import.meta.env.VITE_BACKEND_URL+"/api";
     
     const handleChange = (e) => {

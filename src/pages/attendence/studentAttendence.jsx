@@ -44,7 +44,6 @@ export default function StudentAttendance() {
             if (response.data.success) {
                 setStudents(response.data.students);
                 
-                // Initialize attendance data
                 const initialData = {};
                 response.data.students.forEach(student => {
                     initialData[student._id] = {
@@ -80,8 +79,7 @@ export default function StudentAttendance() {
 
             if (response.data.success) {
                 setExistingAttendance(response.data.attendance);
-                
-                // Update attendance data with existing records
+            
                 const updatedData = { ...attendanceData };
                 response.data.attendance.forEach(record => {
                     updatedData[record.studentId] = {
@@ -92,7 +90,7 @@ export default function StudentAttendance() {
                 setAttendanceData(updatedData);
             }
         } catch (error) {
-            // If no attendance found, that's okay - we'll start fresh
+            
             console.log('No existing attendance for this date');
         }
     };
@@ -135,7 +133,6 @@ export default function StudentAttendance() {
         try {
             const token = localStorage.getItem('authToken');
             
-            // Prepare bulk attendance records
             const attendanceRecords = students.map(student => ({
                 studentId: student._id,
                 status: attendanceData[student._id].status,
@@ -158,8 +155,7 @@ export default function StudentAttendance() {
 
             if (response.data.success) {
                 toast.success(response.data.message || 'Attendance saved successfully!');
-                
-                // Show detailed results
+            
                 const results = response.data.results;
                 if (results.failed.length > 0) {
                     toast.error(`${results.failed.length} records failed to save`);

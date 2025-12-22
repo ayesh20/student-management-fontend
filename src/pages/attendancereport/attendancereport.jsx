@@ -52,7 +52,7 @@ export default function AttendanceReport() {
                     totalRecords: data.totalRecords || 0
                 });
 
-                // Calculate overall statistics
+            
                 const totalPresent = data.studentStats.reduce((sum, s) => sum + s.present, 0);
                 const totalAbsent = data.studentStats.reduce((sum, s) => sum + s.absent, 0);
                 const totalLate = data.studentStats.reduce((sum, s) => sum + s.late, 0);

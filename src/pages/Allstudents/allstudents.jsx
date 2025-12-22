@@ -89,7 +89,7 @@ export default function AllStudents() {
 
             if (response.data.success) {
                 toast.success(response.data.message || 'Student deleted successfully!');
-                // Remove student from state
+                
                 setStudents(students.filter(student => student._id !== id));
             }
         } catch (error) {
